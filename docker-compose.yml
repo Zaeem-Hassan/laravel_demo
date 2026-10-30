@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Presentation Tier - Nginx web server
+  webserver:
+    image: nginx:alpine
+    container_name: laravel-webserver
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - laravel-network
+
+  # Application/Business Logic Tier - PHP-FPM
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-app
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=laravel
+      - DB_USERNAME=laravel_user
+      - DB_PASSWORD=secret
+    networks:
+      - laravel-network
+
+  # Database Tier - MySQL
+  db:
+    image: mysql:8.0
+    container_name: laravel-db
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - laravel-network
+
+volumes:
+  dbdata:
+
+networks:
+  laravel-network:
+    driver: bridge
