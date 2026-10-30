@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/<your-username>/laravel-three-tier.git'
+                git branch: 'main', url: 'https://github.com/Zaeem-Hassan/laravel_demo.git'
             }
         }
 
