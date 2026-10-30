@@ -44,9 +44,17 @@ pipeline {
             }
         }
 
+        stage('Setup Application') {
+            steps {
+                sh 'docker exec laravel-app chmod -R 775 storage bootstrap/cache'
+                sh 'docker exec laravel-app php artisan config:cache'
+                sh 'docker exec laravel-app php artisan route:cache'
+                sh 'docker exec laravel-app php artisan view:cache'
+            }
+        }
+
         stage('Run Migrations') {
             steps {
-                // Wait for MySQL to be ready
                 sh 'sleep 15'
                 sh 'docker exec laravel-app php artisan migrate --force'
             }
